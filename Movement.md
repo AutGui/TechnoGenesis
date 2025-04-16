@@ -1,8 +1,17 @@
 # Movement
 
+This Movement was inspired by the following video:
+
+[![image](https://github.com/user-attachments/assets/986c7849-0f2d-4467-966c-0df47f2930e9)](https://www.youtube.com/watch?v=ImuCx_XVaEQ)
+
+Even though this video is in an older version of Unity, most of the things still apply to the [version](https://github.com/AutGui/TechnoGenesis/blob/main/README.md#unity) I am using.
+
+<br>
+
 For the movement, we plan to do the following mechanics:
 
-- [WASD to move](#player-movement) (for x and z)
+- [WASD to move](#player-movement)
+- [Space to jump](#player-movement)
 
 ## Player Movement
 
@@ -13,6 +22,8 @@ be installed through Unity's Package Manager.
 It's good to see Unity bringing some great features into the engine as default.
 
 ### Input Actions
+
+I created a new Input Actions named **Player Controller Input**.
 
 The way I did the movement in the Input Actions was very simple:
 
@@ -66,12 +77,75 @@ The way I did the movement in the Input Actions was very simple:
 
         ---
 
+### Input Manager
+
+After I finished with the Input Actions I switched Generate a C# Class to on and created a new MonoBehaviour Script named **Input Manager**.
+
+The whole purpose of the **Input Manager** is to get the values from the [**Player Controller Input**](#input-actions).
+
+I use the **Awake** method to make sure that, when starting the script, there isn't any other isntance of the InputManager open, and if so, to destroy this one so there are no conflicts.
+
+```cs
+    // Starts when being loaded
+    void Awake()
+    {
+        if (_instance != null && _instance != this)
+        {
+            Destroy(this.gameObject);
+        }
+        else
+        {
+            _instance = this;
+        }
+        
+        PlayerController = new PlayerControllerInput();
+    }
+```
+
+I also create two new methods, one called **OnEnable**, and another one called **OnDisable**, so in case the **Input Manager** is disabled, the [**Player Controller Input**](#input-actions) is also disabled
+
+```cs
+    // Called when the script is enabled  //|
+    void OnEnable()                       //|
+    {                                     //|
+        PlayerController.Enable();        //|- Input can be disabled or enabled when the script is disabled or enabled //
+    }                                     //|
+                                          //|
+    // Called when the script is disabled //|
+    void OnDisable()
+    {
+        PlayerController.Disable();
+    }
+```
+
 ### Player Controls
 
-Now that I had the input actions completed I swithced the Generated a C# Class to on and created a MonoBehaviour Script named **Player Controls**.
+Now that I had the input system completed I created a MonoBehaviour Script named **Player Controls**.
 
-This script was inspired by the following video:
+<br>
 
-[<img src= "https://github.com/user-attachments/assets/d5a4fd2b-5ec8-4d88-88ff-d8e68fbfddac">](https://www.youtube.com/watch?v=ImuCx_XVaEQ)
+In this case I decided that the Player's speed would be 2.0f, the Jump height at 1.5f and the Gravity at -9.0f.
 
-Even though this video is in an older version of Unity, most of the things still apply to the [version] I am using
+```cs
+    [SerializeField]
+    float PlayerSpeed = 2.0f;
+
+    [SerializeField]
+    float JumpHeight = 1.5f;
+
+    [SerializeField]
+    float Gravity = -9.0f;
+```
+
+<br>
+
+I also use a simple way to check if the player is grounded, since the Character Controller already has an `isGrounded` boolean which checks if the bottom of the character controller is in contact with any collider.
+
+```cs
+bool IsGrounded;
+```
+
+```cs
+IsGrounded = PlayerController.isGrounded;
+```
+
