@@ -83,6 +83,8 @@ After I finished with the Input Actions I switched Generate a C# Class to on and
 
 The whole purpose of the **Input Manager** is to get the values from the [**Player Controller Input**](#input-actions).
 
+<br>
+
 I use the **Awake** method to make sure that, when starting the script, there isn't any other isntance of the InputManager open, and if so, to destroy this one so there are no conflicts.
 
 ```cs
@@ -102,7 +104,9 @@ I use the **Awake** method to make sure that, when starting the script, there is
     }
 ```
 
-I also create two new methods, one called **OnEnable**, and another one called **OnDisable**, so in case the **Input Manager** is disabled, the [**Player Controller Input**](#input-actions) is also disabled
+<br>
+
+I also create two new methods, one called **OnEnable**, and another one called **OnDisable**, so in case the **Input Manager** is disabled, the [**Player Controller Input**](#input-actions) is also disabled.
 
 ```cs
     // Called when the script is enabled  //|
@@ -117,6 +121,30 @@ I also create two new methods, one called **OnEnable**, and another one called *
         PlayerController.Disable();
     }
 ```
+
+<br>
+
+To receive the input I created some methods to return the values from the [**Player Controller Input**](#input-actions).
+One for **Movement**, one for **Mouse** and another for **Jump**.
+
+```cs
+    public UnityEngine.Vector2 GetPlayerMovement()
+    {
+         return PlayerController.MainMovement.Movement.ReadValue<UnityEngine.Vector2>(); 
+    }
+
+    public UnityEngine.Vector2 GetMouseDelta()
+    {
+        return PlayerController.MainMovement.Mouse.ReadValue<UnityEngine.Vector2>();
+    }
+
+    public bool PlayerJumped()
+    {
+        return PlayerController.MainMovement.Jump.triggered;
+    }
+```
+
+<br>
 
 ### Player Controls
 
@@ -139,7 +167,7 @@ In this case I decided that the Player's speed would be 2.0f, the Jump height at
 
 <br>
 
-I also use a simple way to check if the player is grounded, since the Character Controller already has an `isGrounded` boolean which checks if the bottom of the character controller is in contact with any collider.
+I also use a simple way to check if the player is on the ground, thanks to the Character Controller already having an `isGrounded` boolean which checks if the bottom of the character controller is in contact with any collider, the code will be much simpler.
 
 ```cs
 bool IsGrounded;
@@ -149,3 +177,33 @@ bool IsGrounded;
 IsGrounded = PlayerController.isGrounded;
 ```
 
+<br>
+
+To make the player move I created a **Vector2** called `Movement` which corresponds to the [**Input Manager**](#input-manager)'s.
+
+```cs
+        //        Method in InputManager to get Player Movement from Player Controller Input
+        //                                              |
+        UnityEngine.Vector2 Movement = inputManager.GetPlayerMovement();
+```
+
+Then I created a **Vector3** named `Move` which will have the forces needed to move the player in the direction they are typing.
+
+```cs
+        //                               The x vector from PlayerMovement (A and D)
+        //                                                     | The y vector from PlayerMovement (W and S)
+        //                                                     |                |
+        UnityEngine.Vector3 Move = new UnityEngine.Vector3(Movement.x , 0f , Movement.y);
+```
+
+<br>
+
+Now we want the player to move in the direction the camera is facing.
+I created a **Transform** called `CameraPosition` that is the Camera's transform, and with that I make the move `=` the Camera's forward (forward is the blue axis of the transform in world space) `*` the Move's z axis so it moves forward or backwards with the Move's z axis' force `+` Camera's right (right is the red axis of the transform in world space) `*` the Move's x axis so it moves right or left with the Move's x axis' force.
+
+```cs
+        Move = gameObject.transform.forward * Move.z + CameraPosition.right * Move.x;
+```
+
+But this method of doing things comes with a problem.
+If the player is facing upwards or downwards, the more they get closer to 90º, the slower they get.
