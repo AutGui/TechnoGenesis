@@ -2,7 +2,11 @@
 
 TechnoGenesis is an on-going project for a Versatile, Cyberpunk genre Game.
 
-## Using
+## Info
+
+Most stuff are being published to the private TechnoGenesis repo.
+Here, only public stuff, like info, how some things are made, manuals, etc.
+Thank you for your support!
 
 ### Unity
 
