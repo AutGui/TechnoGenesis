@@ -1,6 +1,6 @@
 # TechnoGenesis
 
-TechnoGenesis is an on-going project for a Versatile, Cyberpunk genre Game.
+TechnoGenesis is an on-going project for a Fast Paced, Versatile, Cyberpunk genre Game.
 
 ## Info
 
